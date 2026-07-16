@@ -14,11 +14,22 @@ export default function DashboardPage() {
   const [entrySources, setEntrySources] = useState([]);
 
   useEffect(() => {
-    fetch(`${API}/overview`).then(r => r.json()).then(r => setOverview(r.data || {}));
-    fetch(`${API}/page-time`).then(r => r.json()).then(r => setPageTime(r.data || []));
-    fetch(`${API}/most-visited`).then(r => r.json()).then(r => setMostVisited(r.data || []));
-    fetch(`${API}/navigation-flow`).then(r => r.json()).then(r => setNavFlow(r.data || {}));
-    fetch(`${API}/entry-sources`).then(r => r.json()).then(r => setEntrySources(r.data || []));
+    const fetchJson = async (endpoint, setter) => {
+      try {
+        const res = await fetch(`${API}/${endpoint}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        setter(json.data);
+      } catch (err) {
+        console.error(`Failed to fetch ${endpoint}:`, err);
+      }
+    };
+
+    fetchJson("overview", (data) => setOverview(data || {}));
+    fetchJson("page-time", (data) => setPageTime(data || []));
+    fetchJson("most-visited", (data) => setMostVisited(data || []));
+    fetchJson("navigation-flow", (data) => setNavFlow(data || {}));
+    fetchJson("entry-sources", (data) => setEntrySources(data || []));
   }, []);
 
   return (
