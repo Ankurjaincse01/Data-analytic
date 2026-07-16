@@ -1,0 +1,26 @@
+/* Global */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; color: #333; }
+
+/* Navbar */
+nav {
+  background: #1e293b;
+  padding: 14px 24px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+nav a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 15px;
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+nav a:hover { background: #334155; }
+
+/* Page */
+.page { padding: 40px 50px; }
+.page h1 { font-size: 28px; color: #1e293b; margin-bottom: 10px; }
+.page p { color: #64748b; font-size: 16px; }
+

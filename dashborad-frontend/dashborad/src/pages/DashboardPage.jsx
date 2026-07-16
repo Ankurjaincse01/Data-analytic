@@ -1,0 +1,69 @@
+import { useEffect, useState } from "react";
+import { API } from "../config";
+import ActiveUserCard from "../components/ActiveUserCard";
+import PageTimeChart from "../components/PageTimeChart";
+import MostVisited from "../components/MostVisited";
+import EntrySourceChart from "../components/EntrySourceChart";
+import NavigationFlow from "../components/NavigationFlow";
+
+export default function DashboardPage() {
+  const [overview, setOverview] = useState({});
+  const [pageTime, setPageTime] = useState([]);
+  const [mostVisited, setMostVisited] = useState([]);
+  const [navFlow, setNavFlow] = useState({});
+  const [entrySources, setEntrySources] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API}/overview`).then(r => r.json()).then(r => setOverview(r.data || {}));
+    fetch(`${API}/page-time`).then(r => r.json()).then(r => setPageTime(r.data || []));
+    fetch(`${API}/most-visited`).then(r => r.json()).then(r => setMostVisited(r.data || []));
+    fetch(`${API}/navigation-flow`).then(r => r.json()).then(r => setNavFlow(r.data || {}));
+    fetch(`${API}/entry-sources`).then(r => r.json()).then(r => setEntrySources(r.data || []));
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-gray-100 p-6">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6"> Analytics Dashboard</h1>
+
+      {/* Stats Row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white rounded-xl p-5 shadow text-center">
+          <p className="text-xs text-gray-400 uppercase font-semibold mb-2">Total Sessions</p>
+          <p className="text-4xl font-bold text-gray-800">{overview.totalSessions || 0}</p>
+        </div>
+        <div className="bg-white rounded-xl p-5 shadow text-center">
+          <p className="text-xs text-gray-400 uppercase font-semibold mb-2">Page Views</p>
+          <p className="text-4xl font-bold text-gray-800">{overview.totalPageViews || 0}</p>
+        </div>
+        <div className="bg-white rounded-xl p-5 shadow text-center">
+          <p className="text-xs text-gray-400 uppercase font-semibold mb-2">Avg Duration</p>
+          <p className="text-4xl font-bold text-gray-800">{overview.avgDurationSeconds || 0}s</p>
+        </div>
+        <ActiveUserCard />
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl shadow p-5">
+          <h2 className="text-base font-semibold text-gray-700 mb-4"> Time Spent Per Page</h2>
+          <PageTimeChart data={pageTime} />
+        </div>
+
+        <div className="bg-white rounded-xl shadow p-5">
+          <h2 className="text-base font-semibold text-gray-700 mb-4"> Most Visited Pages</h2>
+          <MostVisited data={mostVisited} />
+        </div>
+
+        <div className="bg-white rounded-xl shadow p-5">
+          <h2 className="text-base font-semibold text-gray-700 mb-4">Entry Sources</h2>
+          <EntrySourceChart data={entrySources} />
+        </div>
+
+        <div className="bg-white rounded-xl shadow p-5">
+          <h2 className="text-base font-semibold text-gray-700 mb-4"> Navigation Flow</h2>
+          <NavigationFlow data={navFlow} />
+        </div>
+      </div>
+    </div>
+  );
+}
