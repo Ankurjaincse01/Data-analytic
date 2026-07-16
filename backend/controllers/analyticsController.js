@@ -11,6 +11,7 @@ const trackEvent = async (req, res) => {
     }
 
     let session = await Session.findOne({ sessionId });
+    const isNewSession = !session;
 
     if (!session) {
       session = new Session({
@@ -25,16 +26,29 @@ const trackEvent = async (req, res) => {
       if (lastPage !== page) session.navigationPath.push(page);
     }
 
+    // Track ARRIVAL on current page immediately so dashboard shows it right away
+    const alreadyCounted = !isNewSession && session.pageVisits.some((v) => v.page === page);
+    if (!alreadyCounted) {
+      await PageView.findOneAndUpdate(
+        { page },
+        { $inc: { totalVisits: 1 }, $set: { lastVisited: new Date() } },
+        { upsert: true }
+      );
+    }
+
+    // Track TIME SPENT on the previous page
     if (from && timeSpent > 0) {
       session.pageVisits.push({ page: from, timeSpent });
 
       const pv = await PageView.findOneAndUpdate(
         { page: from },
-        { $inc: { totalVisits: 1, totalTimeSpent: timeSpent }, $set: { lastVisited: new Date() } },
+        { $inc: { totalTimeSpent: timeSpent }, $set: { lastVisited: new Date() } },
         { upsert: true, returnDocument: "after" }
       );
-      pv.avgTimeSpent = Math.round(pv.totalTimeSpent / pv.totalVisits);
-      await pv.save();
+      if (pv && pv.totalVisits > 0) {
+        pv.avgTimeSpent = Math.round(pv.totalTimeSpent / pv.totalVisits);
+        await pv.save();
+      }
 
       if (from !== page) {
         await NavigationFlow.findOneAndUpdate(
@@ -66,11 +80,13 @@ const endSession = async (req, res) => {
 
       const pv = await PageView.findOneAndUpdate(
         { page },
-        { $inc: { totalVisits: 1, totalTimeSpent: timeSpent }, $set: { lastVisited: new Date() } },
+        { $inc: { totalTimeSpent: timeSpent }, $set: { lastVisited: new Date() } },
         { upsert: true, returnDocument: "after" }
       );
-      pv.avgTimeSpent = Math.round(pv.totalTimeSpent / pv.totalVisits);
-      await pv.save();
+      if (pv && pv.totalVisits > 0) {
+        pv.avgTimeSpent = Math.round(pv.totalTimeSpent / pv.totalVisits);
+        await pv.save();
+      }
     }
 
     session.endTime = new Date();
