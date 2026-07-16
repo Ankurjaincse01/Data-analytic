@@ -1,5 +1,5 @@
 const Session = require("../models/Session");
-const PageView = require("../models/Pageview");
+const PageView = require("../models/PageView");
 const NavigationFlow = require("../models/NavigationFlow");
 
 const getPageTime = async (req, res) => {
