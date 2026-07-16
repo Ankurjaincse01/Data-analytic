@@ -9,6 +9,16 @@ const dashboardRoutes = require("./routes/dashboard");
 
 const app = express();
 
+// Health check — BEFORE DB middleware so it always responds
+app.get("/ping", (req, res) => res.json({ status: "pong" }));
+app.get("/health", (req, res) => {
+  res.json({
+    status: "ok",
+    db: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+    env: !!process.env.MONGODB_URI ? "set" : "MISSING",
+  });
+});
+
 // CORS must be first
 app.use(corsMiddleware);
 app.use(express.json());
@@ -30,12 +40,7 @@ app.use(async (req, res, next) => {
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
-app.get("/health", (req, res) => {
-  res.json({
-    status: "ok",
-    db: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
-  });
-});
+// (health endpoint moved above DB middleware)
 
 // Catch-all 404
 app.use((req, res) => {
