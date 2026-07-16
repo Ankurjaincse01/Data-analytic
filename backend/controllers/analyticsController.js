@@ -27,14 +27,11 @@ const trackEvent = async (req, res) => {
     }
 
     // Track ARRIVAL on current page immediately so dashboard shows it right away
-    const alreadyCounted = !isNewSession && session.pageVisits.some((v) => v.page === page);
-    if (!alreadyCounted) {
-      await PageView.findOneAndUpdate(
-        { page },
-        { $inc: { totalVisits: 1 }, $set: { lastVisited: new Date() } },
-        { upsert: true }
-      );
-    }
+    await PageView.findOneAndUpdate(
+      { page },
+      { $inc: { totalVisits: 1 }, $set: { lastVisited: new Date() } },
+      { upsert: true }
+    );
 
     // Track TIME SPENT on the previous page
     if (from && timeSpent > 0) {

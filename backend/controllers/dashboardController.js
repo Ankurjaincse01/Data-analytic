@@ -68,7 +68,15 @@ const getOverview = async (req, res) => {
           $group: {
             _id: null,
             total: { $sum: 1 },
-            avgDuration: { $avg: "$totalDuration" },
+            avgDuration: {
+              $avg: {
+                $cond: [
+                  { $eq: ["$isActive", false] },
+                  "$totalDuration",
+                  null
+                ]
+              }
+            },
             active: { $sum: { $cond: ["$isActive", 1, 0] } },
           },
         },
