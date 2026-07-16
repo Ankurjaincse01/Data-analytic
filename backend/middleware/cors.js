@@ -1,19 +1,17 @@
-const cors = require("cors");
+// Manual CORS middleware — works on Vercel serverless
+module.exports = (req, res, next) => {
+  const origin = req.headers.origin;
 
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
-  .split(",")
-  .map((o) => o.trim())
-  .filter(Boolean);
+  // Allow all origins (or restrict to specific ones in production)
+  res.setHeader("Access-Control-Allow-Origin", origin || "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
 
-module.exports = cors({
-  origin: (origin, cb) => {
-    // Allow requests with no origin (mobile apps, curl, etc.)
-    if (!origin) return cb(null, true);
-    if (allowedOrigins.length === 0 || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
-      return cb(null, true);
-    }
-    return cb(new Error("Not allowed by CORS"));
-  },
-  methods: ["GET", "POST"],
-  credentials: true,
-});
+  // Handle preflight OPTIONS request immediately
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+
+  next();
+};
