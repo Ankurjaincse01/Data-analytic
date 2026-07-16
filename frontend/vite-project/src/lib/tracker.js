@@ -18,10 +18,8 @@ export const getEntrySource = () => {
 };
 
 const getApiUrl = (path) => {
-  if (window.location.hostname === "localhost" && !["5000", "8000"].includes(window.location.port)) {
-    return `http://localhost:5000${path}`;
-  }
-  return path;
+  const base = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  return `${base}${path}`;
 };
 
 // Sends a page visit event to the backend

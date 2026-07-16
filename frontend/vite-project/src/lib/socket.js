@@ -1,9 +1,6 @@
 import { io } from "socket.io-client";
 
-const socketUrl = window.location.hostname === "localhost" && !["5000", "8000"].includes(window.location.port)
-  ? "http://localhost:5000"
-  : "/";
-
+const socketUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const socket = io(socketUrl);
 
 export default socket;

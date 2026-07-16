@@ -31,7 +31,7 @@ const trackEvent = async (req, res) => {
       const pv = await PageView.findOneAndUpdate(
         { page: from },
         { $inc: { totalVisits: 1, totalTimeSpent: timeSpent }, $set: { lastVisited: new Date() } },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: "after" }
       );
       pv.avgTimeSpent = Math.round(pv.totalTimeSpent / pv.totalVisits);
       await pv.save();
@@ -67,7 +67,7 @@ const endSession = async (req, res) => {
       const pv = await PageView.findOneAndUpdate(
         { page },
         { $inc: { totalVisits: 1, totalTimeSpent: timeSpent }, $set: { lastVisited: new Date() } },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: "after" }
       );
       pv.avgTimeSpent = Math.round(pv.totalTimeSpent / pv.totalVisits);
       await pv.save();
