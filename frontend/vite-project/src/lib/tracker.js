@@ -17,9 +17,16 @@ export const getEntrySource = () => {
   return "referral";
 };
 
+const getApiUrl = (path) => {
+  if (window.location.hostname === "localhost" && !["5000", "8000"].includes(window.location.port)) {
+    return `http://localhost:5000${path}`;
+  }
+  return path;
+};
+
 // Sends a page visit event to the backend
 export const sendEvent = (data) => {
-  fetch("http://localhost:8000/api/analytics/event", {
+  fetch(getApiUrl("/api/analytics/event"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -32,5 +39,5 @@ export const sendSessionEnd = (sessionId, page, timeSpent) => {
     [JSON.stringify({ sessionId, page, timeSpent })],
     { type: "application/json" }
   );
-  navigator.sendBeacon("http://localhost:8000/api/analytics/session/end", blob);
+  navigator.sendBeacon(getApiUrl("/api/analytics/session/end"), blob);
 };

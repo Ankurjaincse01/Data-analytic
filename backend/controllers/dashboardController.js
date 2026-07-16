@@ -20,7 +20,8 @@ const getPageTime = async (req, res) => {
 const getMostVisited = async (req, res) => {
   try {
     const data = await PageView.find({}).sort({ totalVisits: -1 }).limit(10);
-    res.json({ success: true, data });
+    const result = data.map((pv) => ({ page: pv.page, totalVisits: pv.totalVisits }));
+    res.json({ success: true, data: result });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
